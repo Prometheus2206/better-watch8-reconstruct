@@ -1185,7 +1185,7 @@ Loading...
 		
 		(function movePlayer()
 		{
-			document.querySelector("#page .player-api").appendChild(document.querySelector('#movie_player'));
+			document.querySelector('#page .player-api').appendChild(document.querySelector('#movie_player'));
 		})()
 		
 		insertInlineCss(`#page{margin-top:50px;}
@@ -1200,16 +1200,16 @@ Loading...
 	// Player fixes:
 	function byebyeDark()
 	{
-		document.querySelector("ytd-masthead").removeAttribute("dark");
+		document.querySelector('ytd-masthead').removeAttribute('dark');
 	}
 	
 	function setWidePlayer()
 	{
-		if (document.querySelector("#movie_player .ytp-size-button").getAttribute("title") == "Theater mode (t)")
+		if (document.querySelector('#movie_player .ytp-size-button').getAttribute('title') == 'Theater mode (t)')
 		{
-			document.querySelector("#movie_player .ytp-size-button").click();
+			document.querySelector('#movie_player .ytp-size-button').click();
 		}
-		if (document.querySelector("ytd-masthead").getAttribute("dark") != null)
+		if (document.querySelector('ytd-masthead').getAttribute('dark') != null)
 		{
 			byebyeDark();
 		}
@@ -1228,35 +1228,35 @@ Loading...
 	// Autoplay button JS rewrite:
 	if (!isPlaylist)
 	{
-		document.querySelector("#autoplay-checkbox").onclick = function()
+		document.querySelector('#autoplay-checkbox').onclick = function()
 		{
 			playerAutoplayToggle.click();
 		};
 	}
 	
 	// PBJ navigation on spf-links:
-	for (i = 0; i < document.querySelectorAll("a.spf-link").length; i++)
+	for (i = 0, j = document.querySelectorAll('a.spf-link').length; i < j; i++)
 	{
-		if (document.querySelectorAll("a.spf-link")[i].href.split("/")[3].search("watch") > -1)
+		if (document.querySelectorAll('a.spf-link')[i].href.split("/")[3].search("watch") > -1)
 		{
-			document.querySelectorAll("a.spf-link")[i].onclick = function(e)
+			document.querySelectorAll('a.spf-link')[i].onclick = function(e)
 			{
 				e.preventDefault();
-				//polymerNavigateToVideo(document.querySelectorAll("a.spf-link")[i].href.replace(/(((https)|(http)):\/\/|(www\.)|(youtube\.com)|\/watch\?v\=)|(&.*)/g, ""));
+				//polymerNavigateToVideo(document.querySelectorAll('a.spf-link')[i].href.replace(/(((https)|(http)):\/\/|(www\.)|(youtube\.com)|\/watch\?v\=)|(&.*)/g, ""));
 			};
-			document.querySelectorAll("a.spf-link")[i].addEventListener("click", function()
+			document.querySelectorAll('a.spf-link')[i].addEventListener("click", function()
 			{
 				polymerNavigateToVideo(this.href.replace(/(((https)|(http)):\/\/|(www\.)|(youtube\.com)|\/watch\?v\=)|(&.*)/g, ""));
 			});
 		}
-		else if (document.querySelectorAll("a.spf-link")[i].href.match(/channel\/|c\/|user\//))
+		else if (document.querySelectorAll('a.spf-link')[i].href.match(/channel\/|c\/|user\//))
 		{
-			document.querySelectorAll("a.spf-link")[i].onclick = function(e)
+			document.querySelectorAll('a.spf-link')[i].onclick = function(e)
 			{
 				e.preventDefault();
-				//polymerNavigateToVideo(document.querySelectorAll("a.spf-link")[i].href.replace(/(((https)|(http)):\/\/|(www\.)|(youtube\.com)|\/watch\?v\=)|(&.*)/g, ""));
+				//polymerNavigateToVideo(document.querySelectorAll('a.spf-link')[i].href.replace(/(((https)|(http)):\/\/|(www\.)|(youtube\.com)|\/watch\?v\=)|(&.*)/g, ""));
 			};
-			document.querySelectorAll("a.spf-link")[i].addEventListener("click", function()
+			document.querySelectorAll('a.spf-link')[i].addEventListener("click", function()
 			{
 				polymerNavigateToChannel(this.href, this.getAttribute("data-ytid"));
 			});
