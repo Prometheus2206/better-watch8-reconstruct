@@ -1,14 +1,3 @@
-// ==UserScript==
-// @name         Better w8r (Nattie)
-// @namespace    http://tampermonkey.net/
-// @version      0.1
-// @description  try to take over the world!
-// @author       You
-// @match        https://www.youtube.com/*
-// @icon         https://www.google.com/s2/favicons?domain=youtube.com
-// @grant        none
-// ==/UserScript==
-
 var watchPageLoaded = false;
 
 var categoryLinks = {
@@ -73,14 +62,6 @@ function polymerExtractData(query)
 }
 // */
 
-function createScript(input, id) {
-	a = document.body;
-	var b = document.createElement("script");
-	b.text = input;
-	b.setAttribute("id", id);
-	a.appendChild(b);
-}
-
 // Thanks Daylin from GoodTube for the next two functions:
 function waitForElementAlt(selector, callback, checkFrequency, timeout)
 // also shamelessly stolen from taniko lmfao
@@ -122,6 +103,13 @@ function waitForElementAlt(selector, callback, checkFrequency, timeout)
 }
 function polymerExtractData(element) {
 	var randomId = Date.now().toString();
+	function createScript(input, id) {
+        a = document.body;
+        var b = document.createElement("script");
+        b.text = input;
+        b.setAttribute("id", id);
+        a.appendChild(b);
+    }
     createScript(`
 	var pelement` + randomId + ` = document.querySelector("` + element + `");
 	var pdata` + randomId + ` = pelement`+randomId+`.data;
@@ -138,6 +126,13 @@ function polymerExtractData(element) {
 
 function polymerNavigateToVideo(videoId) 
 {
+	function createScript(input, id) {
+        a = document.body;
+        var b = document.createElement("script");
+        b.text = input;
+        b.setAttribute("id", id);
+        a.appendChild(b);
+    }
 	document.querySelector('ytd-app').insertAdjacentHTML('beforeend',
 	'<ytd-guide-entry-renderer class="ytd-guide-entry-renderer polymerNavigateToVideoTemp"></ytd-guide-entry-renderer>');
 	createScript(
@@ -146,9 +141,9 @@ function polymerNavigateToVideo(videoId)
 		"clickTrackingParams": "CIwCENwwIhMIptzB_fzP8QIVUpDECh2QawSWMgpnLWhpZ2gtcmVjWg9GRXdoYXRfdG9fd2F0Y2iaAQYQjh4YngE=",
 		"commandMetadata": {
 			"webCommandMetadata": {
-				"url": "/watch?v=` + videoId + `",
-				"webPageType": "WEB_PAGE_TYPE_WATCH",
-				"rootVe": 3832
+			"url": "/watch?v=` + videoId + `",
+			"webPageType": "WEB_PAGE_TYPE_WATCH",
+			"rootVe": 3832
 			}
 		},
 		"watchEndpoint": {
@@ -158,32 +153,6 @@ function polymerNavigateToVideo(videoId)
 	'polymerNavigationScript');
 	document.querySelector('.polymerNavigateToVideoTemp').click();
 	document.querySelector('.polymerNavigateToVideoTemp').remove();
-	document.querySelector('#polymerNavigationScript').remove();
-}
-function polymerNavigateToChannel(channelUrl, channelId)
-{
-	document.querySelector('ytd-app').insertAdjacentHTML('beforeend',
-	'<ytd-guide-entry-renderer class="ytd-guide-entry-renderer polymerNavigateToChannelTemp"></ytd-guide-entry-renderer>');
-	createScript(
-	`document.querySelector('.polymerNavigateToChannelTemp').data = {};
-	document.querySelector('.polymerNavigateToChannelTemp').data.navigationEndpoint = {
-		"clickTrackingParams": "CIwCENwwIhMIptzB_fzP8QIVUpDECh2QawSWMgpnLWhpZ2gtcmVjWg9GRXdoYXRfdG9fd2F0Y2iaAQYQjh4YngE=",
-		"commandMetadata": {
-			"webCommandMetadata": {
-				"apiUrl": "/youtubei/v1/browse",
-				"url": "` + channelUrl + `",
-				"webPageType": "WEB_PAGE_TYPE_CHANNEL",
-				"rootVe": 3611
-			}
-		},
-		"browseEndpoint": {
-			"browseId": "`+ channelId + `",
-			"canonicalBaseUrl": "` + channelUrl + `"
-		}
-	};`,
-	'polymerNavigationScript');
-	document.querySelector('.polymerNavigateToChannelTemp').click();
-	document.querySelector('.polymerNavigateToChannelTemp').remove();
 	document.querySelector('#polymerNavigationScript').remove();
 }
 
@@ -247,20 +216,11 @@ function createWatchPage(wpData)
 	var videoId = getCurrentVideoId();
 	var primaryInfo = wpData.results.results.contents[0].videoPrimaryInfoRenderer;
 	var secondaryInfo = wpData.results.results.contents[1].videoSecondaryInfoRenderer;
-	if (!yt.config_.LOGGED_IN)
-	{
-		var secondaryResults = wpData.secondaryResults.secondaryResults.results;
-	}
-	else
-	{
-		var secondaryResults = wpData.secondaryResults.secondaryResults.results[1].itemSectionRenderer.contents;
-	}
+	var secondaryResults = wpData.secondaryResults.secondaryResults.results;
 	var ownerInfo = secondaryInfo.owner.videoOwnerRenderer;
 	var videoActionsMenu = primaryInfo.videoActions.menuRenderer;
 	var videoTitle = parseTextObject(primaryInfo.title);
 	var videoViewCount = parseTextObject(primaryInfo.viewCount.videoViewCountRenderer.viewCount);
-	
-	var playerAutoplayToggle = document.querySelector(`button.ytp-button[data-tooltip-target-id="ytp-autonav-toggle-button"]`);
 	
 	function createUserHeader()
 	{
@@ -276,7 +236,6 @@ function createWatchPage(wpData)
 		{
 			ownerEndpoint = '/channel/' + ownerInfo.navigationEndpoint.browseEndpoint.browseId;
 		}
-		var ownerBrowseId = ownerInfo.navigationEndpoint.browseEndpoint.browseId;
 		function createUserInfo()
 		{
 			var ownerVerified = false;
@@ -285,7 +244,7 @@ function createWatchPage(wpData)
 				ownerVerified = true;
 			}
 			return `<div class="yt-user-info">
-			<a href="` + ownerEndpoint + `" class="g-hovercard yt-uix-sessionlink       spf-link " data-ytid="` + ownerBrowseId + `" data-sessionlink="itct=CDQQ4TkiEwjbqYnt7c_TAhWE1X4KHRV5BiEo-B0" >` + ownerName + `</a>
+			<a href="` + ownerEndpoint + `" class="g-hovercard yt-uix-sessionlink       spf-link " data-ytid="UC38IQsAvIsxxjztdMZQtwHA" data-sessionlink="itct=CDQQ4TkiEwjbqYnt7c_TAhWE1X4KHRV5BiEo-B0" >` + ownerName + `</a>
        
       ` + (ownerVerified ? `<span aria-label="Verified" class="yt-channel-title-icon-verified yt-uix-tooltip yt-sprite" data-tooltip-text="Verified"></span>` : '') + `
   </div>`;
@@ -431,9 +390,9 @@ Loading...
 </span></span>`;
 		}
 		
-		return `<div id="watch7-user-header" class=" spf-link ">  <a href="` + ownerEndpoint + `" class="yt-user-photo g-hovercard yt-uix-sessionlink      spf-link " data-ytid="` + ownerBrowseId + `" data-sessionlink="itct=CDQQ4TkiEwjbqYnt7c_TAhWE1X4KHRV5BiEo-B0" >
+		return `<div id="watch7-user-header" class=" spf-link ">  <a href="` + ownerEndpoint + `" class="yt-user-photo g-hovercard yt-uix-sessionlink      spf-link " data-ytid="UC38IQsAvIsxxjztdMZQtwHA" data-sessionlink="itct=CDQQ4TkiEwjbqYnt7c_TAhWE1X4KHRV5BiEo-B0" >
       <span class="video-thumb  yt-thumb yt-thumb-48 g-hovercard"
-      data-ytid="` + ownerBrowseId + `"
+      data-ytid="UC38IQsAvIsxxjztdMZQtwHA"
     >
     <span class="yt-thumb-square">
       <span class="yt-thumb-clip">
@@ -929,7 +888,7 @@ Loading...
           <span class="autoplay-info-icon yt-uix-button-opacity yt-uix-hovercard-target yt-sprite" data-position="topright" data-orientation="vertical"></span>
 <span class="yt-uix-hovercard-content">When autoplay is enabled, a suggested video will automatically play next.</span>        </span>
           <span class="yt-uix-checkbox-on-off ">
-<input id="autoplay-checkbox" class="" type="checkbox"  ` + ((playerAutoplayToggle.querySelector(".ytp-autonav-toggle-button").getAttribute("aria-checked") == "true") ? `checked` : "") + `><label for="autoplay-checkbox" id="autoplay-checkbox-label"><span class="checked"></span><span class="toggle"></span><span class="unchecked"></span></label>  </span>
+<input id="autoplay-checkbox" class="" type="checkbox"  checked><label for="autoplay-checkbox" id="autoplay-checkbox-label"><span class="checked"></span><span class="toggle"></span><span class="unchecked"></span></label>  </span>
 
       </div>
       <h4 class="watch-sidebar-head">
@@ -1196,72 +1155,6 @@ Loading...
 	
 	injectOldPage();
 	watchPageLoaded = true;
-	
-	// Player fixes:
-	function byebyeDark()
-	{
-		document.querySelector("ytd-masthead").removeAttribute("dark");
-	}
-	
-	function setWidePlayer()
-	{
-		if (document.querySelector("#movie_player .ytp-size-button").getAttribute("title") == "Theater mode (t)")
-		{
-			document.querySelector("#movie_player .ytp-size-button").click();
-		}
-		if (document.querySelector("ytd-masthead").getAttribute("dark") != null)
-		{
-			byebyeDark();
-		}
-	}
-	
-	function fixPlayer()
-	{
-		setWidePlayer();
-	}
-	
-	var fixPlayerInterval = setInterval(function() // Fix off cases
-	{
-		fixPlayer();
-	}, 250)
-	
-	// Autoplay button JS rewrite:
-	if (!isPlaylist)
-	{
-		document.querySelector("#autoplay-checkbox").onclick = function()
-		{
-			playerAutoplayToggle.click();
-		};
-	}
-	
-	// PBJ navigation on spf-links:
-	for (i = 0; i < document.querySelectorAll("a.spf-link").length; i++)
-	{
-		if (document.querySelectorAll("a.spf-link")[i].href.split("/")[3].search("watch") > -1)
-		{
-			document.querySelectorAll("a.spf-link")[i].onclick = function(e)
-			{
-				e.preventDefault();
-				//polymerNavigateToVideo(document.querySelectorAll("a.spf-link")[i].href.replace(/(((https)|(http)):\/\/|(www\.)|(youtube\.com)|\/watch\?v\=)|(&.*)/g, ""));
-			};
-			document.querySelectorAll("a.spf-link")[i].addEventListener("click", function()
-			{
-				polymerNavigateToVideo(this.href.replace(/(((https)|(http)):\/\/|(www\.)|(youtube\.com)|\/watch\?v\=)|(&.*)/g, ""));
-			});
-		}
-		else if (document.querySelectorAll("a.spf-link")[i].href.match(/channel\/|c\/|user\//))
-		{
-			document.querySelectorAll("a.spf-link")[i].onclick = function(e)
-			{
-				e.preventDefault();
-				//polymerNavigateToVideo(document.querySelectorAll("a.spf-link")[i].href.replace(/(((https)|(http)):\/\/|(www\.)|(youtube\.com)|\/watch\?v\=)|(&.*)/g, ""));
-			};
-			document.querySelectorAll("a.spf-link")[i].addEventListener("click", function()
-			{
-				polymerNavigateToChannel(this.href, this.getAttribute("data-ytid"));
-			});
-		}
-	}
 	
 	//return finalOutputBuffer.join('');
 }
@@ -13773,7 +13666,6 @@ function killWatchPage()
 	document.querySelector('#hhcorestyle').remove();
 	document.querySelector('#watchStyleRewrite').remove();
 	document.querySelector('#page').remove();
-	clearInterval(fixPlayerInterval);
 	watchPageLoaded = false;
 }
 
